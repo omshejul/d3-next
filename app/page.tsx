@@ -1,16 +1,16 @@
 "use client";
 import { select, selectAll, Selection } from "d3-selection";
 import { useEffect, useRef, useState } from "react";
-
+import { scaleLinear, scaleBand } from "d3-scale";
+import {max} from "d3-array";
 const data = [
-  { units: 100, color: "red" },
-  { units: 250, color: "blue" },
-  { units: 30, color: "green" },
-  { units: 50, color: "yellow" },
-  { units: 80, color: "purple" },
-  { units: 120, color: "orange" },
-  { units: 200, color: "pink" },
+  { name: "foo", number: 1805 },
+  { name: "bar", number: 1200 },
+  { name: "baz", number: 1000 },
+  { name: "qux", number: 5 },
+  { name: "quux", number: 1500 },
 ];
+const size = { width: 1000, height: 500 };
 export default function Home() {
   const svgRef = useRef<SVGSVGElement | null>(null);
   const [selection, setSelection] = useState<null | Selection<
@@ -20,45 +20,36 @@ export default function Home() {
     undefined
   >>(null);
 
+  const maxNumber = max(data, (d) => d.number);
+  const y = scaleLinear().domain([0, maxNumber!]).range([0, size.height]);
+  console.log("y(O)", y(0));
+  console.log("y(5042)", y(1554));
+
+  const x = scaleBand()
+    .domain(data.map((d) => d.name))
+    .range([0, size.width])
+    .padding(0.1);
+
   useEffect(() => {
     if (!selection) {
       setSelection(select(svgRef.current));
     } else {
-      console.log("selection", selection);
-      const rects = selection
+      selection
         .selectAll("rect")
         .data(data)
-        .attr("width", 100)
-        .attr("height", (d) => d.units)
-        .attr("fill", (d) => d.color)
-        .attr("x", (_, index) => index * 100);
-      
-        rects
-          .enter()
-          .append("rect")
-          .attr("width", 100)
-          .attr("height", (d) => d.units)
-          .attr("fill", (d) => d.color)
-          .attr("x", (_, index) => index * 100);
-      
-
-      console.log(selection);
+        .enter()
+        .append("rect")
+        .attr("x", (d) => x(d.name)!)
+        .attr("y", (d) => (size.height - y(d.number)))
+        .attr("width", x.bandwidth)
+        .attr("height", (d) => y(d.number))
+        .attr("fill", "orange");
     }
-
-    // selectAll("rect")
-    //   .attr("width", 100)
-    //   .attr("height", 100)
-    //   .attr("fill", "blue")
-    //   .attr("x", (_, index) => index);
   }, [selection]);
   return (
     <main className="flex min-h-screen flex-col items-center  p-24">
       <h1>Bar Chart</h1>
-      <svg ref={svgRef} width={1000}>
-        <rect />
-        <rect />
-        <rect />
-      </svg>
+      <svg ref={svgRef} width={size.width} height={size.height}></svg>
     </main>
   );
 }
