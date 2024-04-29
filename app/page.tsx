@@ -5,6 +5,7 @@ import { scaleLinear, scaleBand } from "d3-scale";
 import { max } from "d3-array";
 import "d3-transition";
 import { axisBottom, axisLeft } from "d3-axis";
+import { easeCubicOut, easeExpInOut, easeExpOut } from "d3-ease";
 const json = [
   { name: "foo", number: 1805 },
   { name: "bar", number: 1200 },
@@ -34,7 +35,6 @@ export default function Home() {
   console.log("y(O)", y(0));
   console.log("y(2000)", y(2000));
 
-
   const x = scaleBand()
     .domain(data.map((d) => d.name))
     .range([0, size.chartWidth])
@@ -50,40 +50,45 @@ export default function Home() {
       setData(json);
       const xAxisGroup = selection
         .append("g")
-        .attr("transform", `translate(${size.margin}, ${size.chartHeight+size.margin})`)
+        .attr(
+          "transform",
+          `translate(${size.margin}, ${size.chartHeight + size.margin})`
+        )
         .call(xAxis);
-  
+
       const yAxisGroup = selection
         .append("g")
         .attr("transform", `translate(${size.margin}, ${size.margin})`)
         .call(yAxis);
-  
+
       selection
-      .append("g")
-      .attr("transform", `translate(${size.margin}, ${size.margin})`)
-      .selectAll("rect")
-      .data(data)
-      .enter()
-      .append("rect")
-      .attr("x", (d) => x(d.name)!)
-      .attr("y", size.chartHeight) // Start from the bottom of the chart
-      .attr("width", x.bandwidth())
-      .attr("height", 0) // Start height as 0
-      .attr("fill", "skyblue")
-      .transition() // Transition to grow the bar upward
-      .duration((_, i) => 500 + 100 * i)
-      .attr("y", (d) => y(d.number)) // Move y up as the bar grows
-      .attr("height", (d) => size.chartHeight - y(d.number)) // Height grows
-      .attr("fill", "blue");
+        .append("g")
+        .attr("transform", `translate(${size.margin}, ${size.margin})`)
+        .selectAll("rect")
+        .data(data)
+        .enter()
+        .append("rect")
+        .attr("x", (d) => x(d.name)!)
+        .attr("y", size.chartHeight)
+        .attr("width", x.bandwidth())
+        .attr("height", 0)
+        .attr("fill", "#000")
+        .transition()
+        .ease(easeExpInOut)
+        .duration(250)
+        .delay((d, i) => i * 100)
+        .attr("y", (d) => y(d.number))
+        .attr("height", (d) => size.chartHeight - y(d.number))
+        .attr("fill", "#2662c1");
 
     }
   }, [selection]);
-  
+
   return (
     <main className="flex min-h-screen flex-col items-center  p-24">
       <h1 className="font-semibold text-3xl">Bar Chart</h1>
       <div className="border">
-      <svg ref={svgRef} width={size.width}  height={size.height}></svg>
+        <svg ref={svgRef} width={size.width} height={size.height}></svg>
       </div>
     </main>
   );
