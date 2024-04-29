@@ -16,7 +16,7 @@ const size = {
   height: 500,
   chartWidth: 900,
   chartHeight: 400,
-  margin: 20,
+  margin: 50,
 };
 export default function Home() {
   const svgRef = useRef<SVGSVGElement | null>(null);
@@ -46,17 +46,17 @@ export default function Home() {
     } else {
       const xAxisGroup = selection
         .append("g")
-        .attr("transform", `translate(${size.margin}, ${size.chartHeight})`)
+        .attr("transform", `translate(${size.margin}, ${size.chartHeight+size.margin})`)
         .call(xAxis);
   
       const yAxisGroup = selection
         .append("g")
-        .attr("transform", `translate(${size.margin}, 0)`)
+        .attr("transform", `translate(${size.margin}, ${size.margin})`)
         .call(yAxis);
   
       selection
         .append("g")
-        .attr("transform", `translate(${size.margin}, 0)`)
+        .attr("transform", `translate(${size.margin}, ${size.margin})`)
         .selectAll("rect")
         .data(data)
         .enter()
@@ -72,7 +72,9 @@ export default function Home() {
   return (
     <main className="flex min-h-screen flex-col items-center  p-24">
       <h1 className="font-semibold text-3xl">Bar Chart</h1>
-      <svg ref={svgRef} width={size.width} height={size.height}></svg>
+      <div className="border">
+      <svg ref={svgRef} width={size.width}  height={size.height}></svg>
+      </div>
     </main>
   );
 }
