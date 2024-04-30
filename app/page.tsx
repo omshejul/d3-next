@@ -1,6 +1,7 @@
 "use client";
 import { useRef, useState, useEffect } from "react";
 import * as d3 from "d3";
+import { Selection } from "d3-selection";
 import { scaleLinear, scaleBand } from "d3-scale";
 import { max } from "d3-array";
 import { axisBottom, axisLeft } from "d3-axis";
@@ -26,8 +27,8 @@ export default function Home() {
   const svgRef = useRef(null);
   const [data, setData] = useState(json);
   const [tooltip, setTooltip] = useState({ visible: false, content: "", x: 0, y: 0 });
-
   useEffect(() => {
+    setData(json);
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove(); 
   
@@ -51,9 +52,9 @@ export default function Home() {
       .enter()
       .append("rect")
       .attr("x", (d) => x(d.name)!)
-      .attr("y", (d) => y(d.number))
+      .attr("y", size.chartHeight)
       .attr("width", x.bandwidth())
-      .attr("height", (d) => size.chartHeight - y(d.number))
+      // .attr("height",  0)
       .attr("fill", "#2662c1")
       .on("mouseover", (event, d) => {
         setTooltip({
@@ -70,9 +71,16 @@ export default function Home() {
           y: event.pageY,
         }));
       })
-      .on("mouseout", () => setTooltip({ ...tooltip, visible: false }));
+      .on("mouseout", () => setTooltip({ ...tooltip, visible: false }))
+      .transition()
+      .duration(1000)
+      .ease(easeExpInOut)
+      .delay((d, i) => i * 100)
+      .attr("y", (d) => y(d.number))
+      .attr("height", (d) => size.chartHeight - y(d.number))
+
   
-  }, [data]);
+  }, [data, json]);
   
 
   return (
@@ -88,7 +96,7 @@ export default function Home() {
       transition: 'transform 0.6s cubic-bezier(.26,.85,.37,1.23)',
       visibility: tooltip.visible ? "visible" : "hidden",
       padding: "0.5rem 1rem",
-      background: "hsla(0, 0%, 0%, 0.9)",
+      background: "hsla(0, 0%, 0%, 0.6)",
       border: "1px solid hsla(0, 0%, 50%, 0.5)",
       backdropFilter: "blur(10px)",  
       color: "white",
