@@ -93,7 +93,7 @@ export default function Home() {
       top: 0,
       left: 0,
       transform: `translate(${tooltip.x}px, ${tooltip.y}px) translate(-50%, -120%)`,
-      transition: 'transform 0.6s cubic-bezier(.26,.85,.37,1.23)',
+      transition: 'transform 1s cubic-bezier(0,.08,.14,1.59)',
       visibility: tooltip.visible ? "visible" : "hidden",
       padding: "0.5rem 1rem",
       background: "hsla(0, 0%, 0%, 0.6)",
